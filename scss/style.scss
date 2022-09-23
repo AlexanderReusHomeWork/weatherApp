@@ -1,0 +1,57 @@
+@import "_variables";
+@import "_searchForm";
+@import "_city";
+@import "_todayContainer";
+@import "_todayForecast";
+@import "_utility";
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  background: linear-gradient(
+    117deg,
+    rgba(2, 0, 36, 1) 0%,
+    rgba(9, 9, 121, 0.7671218145461309) 78%,
+    rgba(0, 212, 255, 1) 100%
+  );
+  background-attachment: fixed;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (max-width: 801px) {
+  .today-container {
+    grid-template-columns: repeat(1, 1fr);
+    &-temp {
+      justify-content: center;
+    }
+    &-details {
+      margin-bottom: 20px;
+    }
+    &-hum {
+      align-items: center;
+    }
+  }
+  .today-forecast {
+    grid-template-columns: repeat(3, 1fr);
+    margin-bottom: 20px;
+    div {
+      margin-top: 20px;
+    }
+  }
+}
+
+@media (max-width: 550px) {
+  .today-forecast {
+    grid-template-columns: repeat(2, 1fr);
+    div {
+      margin-inline: 10px;
+      p {
+        text-align: center;
+      }
+    }
+  }
+}

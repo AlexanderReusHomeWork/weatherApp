@@ -1,0 +1,37 @@
+.today-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding-inline: 30px;
+  &-temp {
+    color: #fff;
+    display: flex;
+    align-items: flex-start;
+    p {
+      font-size: clamp(6rem, 10vw, 10rem);
+    }
+    span {
+      font-size: clamp(3rem, 6vw, 5rem);
+    }
+  }
+  &-details {
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    h2 {
+      font-size: clamp(2rem, 3vw, 3rem);
+    }
+    p {
+      font-size: clamp(1.5rem, 3vw, 2rem);
+    }
+  }
+  &-hum {
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    p {
+      font-size: clamp(1.5rem, 3vw, 2rem);
+    }
+  }
+}
