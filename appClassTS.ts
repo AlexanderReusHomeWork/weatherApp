@@ -1,34 +1,51 @@
 class WeatherAppTS {
   private API_KEY_WEATHER: string;
   private API_KEY_LOCATION: string;
+
+  private city = document.querySelector(".city") as HTMLBodyElement;
+  private todayWeather = document.querySelector(
+    ".today-container-temp"
+  ) as HTMLBodyElement;
+  private weatherDetails = document.querySelector(
+    ".today-container-details"
+  ) as HTMLBodyElement;
+  private weatherHum = document.querySelector(
+    ".today-container-hum"
+  ) as HTMLBodyElement;
+  private todayForecast = document.querySelector(
+    ".today-forecast"
+  ) as HTMLBodyElement;
+  private searchInput = document.getElementById(
+    "city-search"
+  ) as HTMLInputElement;
+  private form = document.querySelector(".search-form") as HTMLFormElement;
+
   constructor(apiKeyWeather: string, apiKeyLocation: string) {
     this.API_KEY_WEATHER = apiKeyWeather;
     this.API_KEY_LOCATION = apiKeyLocation;
-    const form = document.querySelector(".search-form") as HTMLFormElement;
 
-    form.addEventListener("submit", (e: any) => {
-      e.preventDefault();
-      const searchInput = document.getElementById(
-        "city-search"
-      ) as HTMLInputElement;
-
-      if (searchInput.value === "") {
-        this.renderErrorMsg("Please enter a city");
-      }
-
-      fetch(
-        `https://api.opencagedata.com/geocode/v1/json?q=${searchInput.value.trim()}&key=${
-          this.API_KEY_LOCATION
-        }&language=en&pretty=1&no_annotations=1`
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          const { lat, lng } = data.results[0].geometry;
-          this.getWeatherData(lat, lng);
-        })
-        .catch((err) => console.log(err.message));
-    });
+    this.form.addEventListener("submit", this.getCityEvent);
   }
+
+  getCityEvent = (e: any) => {
+    e.preventDefault();
+
+    if (this.searchInput.value === "") {
+      this.renderErrorMsg("Please enter a city");
+    }
+
+    fetch(
+      `https://api.opencagedata.com/geocode/v1/json?q=${this.searchInput.value.trim()}&key=${
+        this.API_KEY_LOCATION
+      }&language=en&pretty=1&no_annotations=1`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        const { lat, lng } = data.results[0].geometry;
+        this.getWeatherData(lat, lng);
+      })
+      .catch((_) => this.renderErrorMsg("Such city doesn`t exist"));
+  };
 
   getPosition = () => {
     navigator.geolocation.getCurrentPosition(this.onSuccess, this.onError);
@@ -38,7 +55,7 @@ class WeatherAppTS {
     const errorMsgContainer = document.querySelector(
       ".search-form-error"
     ) as HTMLElement;
-    errorMsgContainer.textContent = msg; //не применяются стили
+    errorMsgContainer.textContent = msg;
     errorMsgContainer.classList.remove("none");
     errorMsgContainer.classList.add("errorMsg");
     setTimeout(() => {
@@ -59,20 +76,6 @@ class WeatherAppTS {
     description: string,
     list: object[]
   ) => {
-    const city = document.querySelector(".city") as HTMLBodyElement;
-    const todayWeather = document.querySelector(
-      ".today-container-temp"
-    ) as HTMLBodyElement;
-    const weatherDetails = document.querySelector(
-      ".today-container-details"
-    ) as HTMLBodyElement;
-    const weatherHum = document.querySelector(
-      ".today-container-hum"
-    ) as HTMLBodyElement;
-    const todayForecast = document.querySelector(
-      ".today-forecast"
-    ) as HTMLBodyElement;
-
     const forecast: object[] = [];
     for (let i = 0; i < list.length; i++) {
       if (i === 0) continue;
@@ -88,7 +91,7 @@ class WeatherAppTS {
           `;
     const weatherDetHTML = `
             <h2>${weather}</h2>
-            <p>Feels line: <span>${feelsLike}</span></p>
+            <p>Feels like: <span>${feelsLike}</span></p>
             <p>Pressure: <span>${pressure}</span></p>
             <p>Humidity: <span>${humidity}%</span></p>
           `;
@@ -117,17 +120,20 @@ class WeatherAppTS {
         `;
     });
 
-    city.innerHTML = "";
-    todayWeather.innerText = "";
-    weatherDetails.innerHTML = "";
-    weatherHum.innerHTML = "";
-    todayForecast.innerHTML = "";
+    this.city.innerHTML = "";
+    this.todayWeather.innerText = "";
+    this.weatherDetails.innerHTML = "";
+    this.weatherHum.innerHTML = "";
+    this.todayForecast.innerHTML = "";
 
-    city.insertAdjacentHTML("afterbegin", cityHTML);
-    todayWeather.insertAdjacentHTML("afterbegin", tempHTML);
-    weatherDetails.insertAdjacentHTML("afterbegin", weatherDetHTML);
-    weatherHum.insertAdjacentHTML("afterbegin", weatherDet2HTML);
-    todayForecast.insertAdjacentHTML("afterbegin", dailyForecastHTML.join(""));
+    this.city.insertAdjacentHTML("afterbegin", cityHTML);
+    this.todayWeather.insertAdjacentHTML("afterbegin", tempHTML);
+    this.weatherDetails.insertAdjacentHTML("afterbegin", weatherDetHTML);
+    this.weatherHum.insertAdjacentHTML("afterbegin", weatherDet2HTML);
+    this.todayForecast.insertAdjacentHTML(
+      "afterbegin",
+      dailyForecastHTML.join("")
+    );
   };
 
   getWeatherData = async (latitude: number, longitude: number) => {
