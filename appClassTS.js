@@ -40,6 +40,15 @@ var WeatherAppTS = /** @class */ (function () {
         this.getPosition = function () {
             navigator.geolocation.getCurrentPosition(_this.onSuccess, _this.onError);
         };
+        this.renderErrorMsg = function (msg) {
+            var errorMsgContainer = document.querySelector(".search-form-error");
+            errorMsgContainer.textContent = msg; //не применяются стили
+            errorMsgContainer.classList.remove("none");
+            errorMsgContainer.classList.add("errorMsg");
+            setTimeout(function () {
+                errorMsgContainer.classList.add("none");
+            }, 3000);
+        };
         this.renderData = function (cityProp, country, currentTemp, feelsLike, humidity, pressure, visibility, windSpeed, weather, description, list) {
             var city = document.querySelector(".city");
             var todayWeather = document.querySelector(".today-container-temp");
@@ -128,12 +137,7 @@ var WeatherAppTS = /** @class */ (function () {
             e.preventDefault();
             var searchInput = document.getElementById("city-search");
             if (searchInput.value === "") {
-                var errorMsgContainer_1 = document.querySelector(".search-form-error");
-                errorMsgContainer_1.textContent = "Please enter a city"; //не применяются стили
-                errorMsgContainer_1.classList.remove("none");
-                setTimeout(function () {
-                    errorMsgContainer_1.classList.add("none");
-                }, 3000);
+                _this.renderErrorMsg("Please enter a city");
             }
             fetch("https://api.opencagedata.com/geocode/v1/json?q=".concat(searchInput.value.trim(), "&key=").concat(_this.API_KEY_LOCATION, "&language=en&pretty=1&no_annotations=1"))
                 .then(function (res) { return res.json(); })

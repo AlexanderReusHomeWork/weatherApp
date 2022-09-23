@@ -13,14 +13,7 @@ class WeatherAppTS {
       ) as HTMLInputElement;
 
       if (searchInput.value === "") {
-        const errorMsgContainer = document.querySelector(
-          ".search-form-error"
-        ) as HTMLElement;
-        errorMsgContainer.textContent = "Please enter a city"; //не применяются стили
-        errorMsgContainer.classList.remove("none");
-        setTimeout(() => {
-          errorMsgContainer.classList.add("none");
-        }, 3000);
+        this.renderErrorMsg("Please enter a city");
       }
 
       fetch(
@@ -39,6 +32,18 @@ class WeatherAppTS {
 
   getPosition = () => {
     navigator.geolocation.getCurrentPosition(this.onSuccess, this.onError);
+  };
+
+  renderErrorMsg = (msg: string) => {
+    const errorMsgContainer = document.querySelector(
+      ".search-form-error"
+    ) as HTMLElement;
+    errorMsgContainer.textContent = msg; //не применяются стили
+    errorMsgContainer.classList.remove("none");
+    errorMsgContainer.classList.add("errorMsg");
+    setTimeout(() => {
+      errorMsgContainer.classList.add("none");
+    }, 3000);
   };
 
   renderData = (
