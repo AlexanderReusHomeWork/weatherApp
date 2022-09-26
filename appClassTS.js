@@ -48,6 +48,7 @@ var WeatherAppTS = /** @class */ (function () {
             e.preventDefault();
             if (_this.searchInput.value === "") {
                 _this.renderErrorMsg("Please enter a city");
+                return;
             }
             fetch("https://api.opencagedata.com/geocode/v1/json?q=".concat(_this.searchInput.value.trim(), "&key=").concat(_this.API_KEY_LOCATION, "&language=en&pretty=1&no_annotations=1"))
                 .then(function (res) { return res.json(); })

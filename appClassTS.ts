@@ -32,6 +32,7 @@ class WeatherAppTS {
 
     if (this.searchInput.value === "") {
       this.renderErrorMsg("Please enter a city");
+      return;
     }
 
     fetch(
