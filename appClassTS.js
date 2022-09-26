@@ -76,7 +76,7 @@ var WeatherAppTS = /** @class */ (function () {
                     continue;
                 forecast.push(list[i]);
             }
-            var cityHTML = "\n      <p>".concat(cityProp, ",").concat(country, "</p>\n      ");
+            var cityHTML = "\n      <p>".concat(cityProp, ", ").concat(country, "</p>\n      ");
             var tempHTML = "\n            <p>".concat(currentTemp, "</p>\n            <span>\u00B0C</span>\n          ");
             var weatherDetHTML = "\n            <h2>".concat(weather, "</h2>\n            <p>Feels like: <span>").concat(feelsLike, "</span></p>\n            <p>Pressure: <span>").concat(pressure, "</span></p>\n            <p>Humidity: <span>").concat(humidity, "%</span></p>\n          ");
             var weatherDet2HTML = "\n            <p>Wind: <span>".concat(windSpeed, "km/h</span></p>\n            <p>Visibility: <span>").concat(visibility / 1000, "km</span></p>\n            <p>Description: <span>").concat(description, "</span></p>\n        ");

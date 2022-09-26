@@ -84,7 +84,7 @@ class WeatherAppTS {
     }
 
     const cityHTML = `
-      <p>${cityProp},${country}</p>
+      <p>${cityProp}, ${country}</p>
       `;
     const tempHTML = `
             <p>${currentTemp}</p>
