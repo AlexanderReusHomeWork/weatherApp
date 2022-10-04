@@ -1,11 +1,58 @@
+.lds-ellipsis {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px; }
+  .lds-ellipsis div {
+    position: absolute;
+    top: 33px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #6c6767;
+    animation-timing-function: cubic-bezier(0, 1, 1, 0); }
+    .lds-ellipsis div:nth-child(1) {
+      left: 8px;
+      animation: lds-ellipsis1 0.6s infinite; }
+    .lds-ellipsis div:nth-child(2) {
+      left: 8px;
+      animation: lds-ellipsis2 0.6s infinite; }
+    .lds-ellipsis div:nth-child(3) {
+      left: 32px;
+      animation: lds-ellipsis2 0.6s infinite; }
+    .lds-ellipsis div:nth-child(4) {
+      left: 56px;
+      animation: lds-ellipsis3 0.6s infinite; }
+
+@keyframes lds-ellipsis1 {
+  0% {
+    transform: scale(0); }
+  100% {
+    transform: scale(1); } }
+
+@keyframes lds-ellipsis3 {
+  0% {
+    transform: scale(1); }
+  100% {
+    transform: scale(0); } }
+
+@keyframes lds-ellipsis2 {
+  0% {
+    transform: translate(0, 0); }
+  100% {
+    transform: translate(24px, 0); } }
+
 .search-form {
   display: flex;
   flex-direction: column;
-  position: relative; }
+  position: relative;
+  margin-bottom: 30px;
+  max-width: fit-content;
+  margin-inline: auto;
+  margin-bottom: 30px; }
   .search-form-container {
     display: flex;
-    justify-content: center;
-    margin-bottom: 30px; }
+    justify-content: center; }
     .search-form-container input {
       padding-inline: 15px;
       padding-block: 10px;
@@ -27,6 +74,27 @@
         transform: scale(0.9); }
       .search-form-container button:hover {
         color: #5cf35c; }
+  .search-form-locations {
+    width: 88%;
+    position: absolute;
+    background-color: #fff;
+    padding-inline: 15px;
+    padding-block: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    max-width: 350px;
+    margin: 0 auto;
+    bottom: -91px;
+    overflow-y: scroll;
+    max-height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column; }
+    .search-form-locations p {
+      cursor: pointer; }
+      .search-form-locations p:hover {
+        background-color: rgba(27, 98, 197, 0.512); }
   .search-form-error {
     position: absolute;
     left: 50%;

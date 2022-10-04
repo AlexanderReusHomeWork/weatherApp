@@ -44,8 +44,11 @@ var WeatherAppTS = /** @class */ (function () {
         this.todayForecast = document.querySelector(".today-forecast");
         this.searchInput = document.getElementById("city-search");
         this.form = document.querySelector(".search-form");
-        this.getCityEvent = function (e) {
-            e.preventDefault();
+        this.locationsRender = document.querySelector(".search-form-locations");
+        this.locationsContainer = document.querySelector(".search-form-locations-container");
+        this.loader = document.querySelector(".lds-ellipsis");
+        this.getCityEvent = function ( /* e: Event */) {
+            /* e.preventDefault(); */
             if (_this.searchInput.value === "") {
                 _this.renderErrorMsg("Please enter a city");
                 return;
@@ -53,9 +56,57 @@ var WeatherAppTS = /** @class */ (function () {
             fetch("https://api.opencagedata.com/geocode/v1/json?q=".concat(_this.searchInput.value.trim(), "&key=").concat(_this.API_KEY_LOCATION, "&language=en&pretty=1&no_annotations=1"))
                 .then(function (res) { return res.json(); })
                 .then(function (data) {
-                var _a = data.results[0].geometry, lat = _a.lat, lng = _a.lng;
-                _this.getWeatherData(lat, lng);
-            })["catch"](function (_) { return _this.renderErrorMsg("Such city doesn`t exist"); });
+                var cityResult = data.results;
+                _this.displayLocationsRes(cityResult);
+            })["catch"](function (_) { return _this.renderErrorMsg("Such city does`nt exist"); });
+        };
+        this.debounce = function (callback, ms) {
+            var timer;
+            return function () {
+                var _this = this;
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                clearTimeout(timer);
+                timer = setTimeout(function () { return callback.apply(_this, args); }, ms);
+            };
+        };
+        this.timer = function () {
+            if (!_this.searchInput.value)
+                return;
+            _this.locationsRender.classList.remove("none");
+            var timerDebounce = _this.debounce(_this.getCityEvent, 1000);
+            timerDebounce();
+        };
+        this.displayLocationsRes = function (city) {
+            var citiesArr = city.map(function (res) {
+                return "<p style='margin-top:5px'>".concat(res.formatted, "</p>");
+            });
+            if (citiesArr.length > 0) {
+                _this.loader.classList.add("none");
+                _this.locationsContainer.insertAdjacentHTML("afterbegin", citiesArr.join(""));
+                _this.locationsContainer.addEventListener("click", function (e) {
+                    var chosenLocation = e.target.closest("p").textContent;
+                    var filteredCity = city.filter(function (elem) { return elem.formatted === chosenLocation; });
+                    var locationCoords = filteredCity[0].geometry;
+                    _this.locCoords = locationCoords;
+                    if (!chosenLocation)
+                        return;
+                    _this.searchInput.value = chosenLocation;
+                    _this.locationsContainer.innerHTML = "";
+                    _this.locationsRender.classList.add("none");
+                });
+            }
+            else {
+                _this.loader.classList.remove("none");
+            }
+        };
+        this.weatherIntermediary = function (e) {
+            e.preventDefault();
+            _this.searchInput.value = "";
+            var _a = _this.locCoords, lat = _a.lat, lng = _a.lng;
+            _this.getWeatherData(lat, lng);
         };
         this.getPosition = function () {
             navigator.geolocation.getCurrentPosition(_this.onSuccess, _this.onError);
@@ -147,7 +198,8 @@ var WeatherAppTS = /** @class */ (function () {
         };
         this.API_KEY_WEATHER = apiKeyWeather;
         this.API_KEY_LOCATION = apiKeyLocation;
-        this.form.addEventListener("submit", this.getCityEvent);
+        this.form.addEventListener("submit", this.weatherIntermediary);
+        this.searchInput.addEventListener("keyup", this.timer);
     }
     return WeatherAppTS;
 }());

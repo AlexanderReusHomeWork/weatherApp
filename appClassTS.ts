@@ -1,6 +1,7 @@
 class WeatherAppTS {
   private API_KEY_WEATHER: string;
   private API_KEY_LOCATION: string;
+  private locCoords: any;
 
   private city = document.querySelector(".city") as HTMLBodyElement;
   private todayWeather = document.querySelector(
@@ -19,16 +20,24 @@ class WeatherAppTS {
     "city-search"
   ) as HTMLInputElement;
   private form = document.querySelector(".search-form") as HTMLFormElement;
+  private locationsRender = document.querySelector(
+    ".search-form-locations"
+  ) as HTMLElement;
+  private locationsContainer = document.querySelector(
+    ".search-form-locations-container"
+  ) as HTMLBodyElement;
+  private loader = document.querySelector(".lds-ellipsis") as HTMLBodyElement;
 
   constructor(apiKeyWeather: string, apiKeyLocation: string) {
     this.API_KEY_WEATHER = apiKeyWeather;
     this.API_KEY_LOCATION = apiKeyLocation;
 
-    this.form.addEventListener("submit", this.getCityEvent);
+    this.form.addEventListener("submit", this.weatherIntermediary);
+    this.searchInput.addEventListener("keyup", this.timer);
   }
 
-  getCityEvent = (e: any) => {
-    e.preventDefault();
+  getCityEvent = (/* e: Event */) => {
+    /* e.preventDefault(); */
 
     if (this.searchInput.value === "") {
       this.renderErrorMsg("Please enter a city");
@@ -42,10 +51,60 @@ class WeatherAppTS {
     )
       .then((res) => res.json())
       .then((data) => {
-        const { lat, lng } = data.results[0].geometry;
-        this.getWeatherData(lat, lng);
+        const cityResult = data.results;
+        this.displayLocationsRes(cityResult);
       })
-      .catch((_) => this.renderErrorMsg("Such city doesn`t exist"));
+      .catch((_) => this.renderErrorMsg("Such city does`nt exist"));
+  };
+
+  debounce = (callback: Function, ms: number): Function => {
+    let timer: ReturnType<typeof setTimeout>;
+
+    return function (this: any, ...args: any[]) {
+      clearTimeout(timer);
+      timer = setTimeout(() => callback.apply(this, args), ms);
+    };
+  };
+
+  timer = () => {
+    if (!this.searchInput.value) return;
+    this.locationsRender.classList.remove("none");
+    const timerDebounce = this.debounce(this.getCityEvent, 1000);
+    timerDebounce();
+  };
+
+  displayLocationsRes = (city: any[]) => {
+    const citiesArr = city.map((res: any) => {
+      return `<p style='margin-top:5px'>${res.formatted}</p>`;
+    });
+    if (citiesArr.length > 0) {
+      this.loader.classList.add("none");
+      this.locationsContainer.insertAdjacentHTML(
+        "afterbegin",
+        citiesArr.join("")
+      );
+      this.locationsContainer.addEventListener("click", (e: any) => {
+        const chosenLocation = e.target.closest("p").textContent;
+        const filteredCity = city.filter(
+          (elem) => elem.formatted === chosenLocation
+        );
+        const locationCoords = filteredCity[0].geometry;
+        this.locCoords = locationCoords;
+        if (!chosenLocation) return;
+        this.searchInput.value = chosenLocation;
+        this.locationsContainer.innerHTML = "";
+        this.locationsRender.classList.add("none");
+      });
+    } else {
+      this.loader.classList.remove("none");
+    }
+  };
+
+  weatherIntermediary = (e: Event) => {
+    e.preventDefault();
+    this.searchInput.value = "";
+    const { lat, lng } = this.locCoords;
+    this.getWeatherData(lat, lng);
   };
 
   getPosition = () => {
