@@ -47,12 +47,7 @@ var WeatherAppTS = /** @class */ (function () {
         this.locationsRender = document.querySelector(".search-form-locations");
         this.locationsContainer = document.querySelector(".search-form-locations-container");
         this.loader = document.querySelector(".lds-ellipsis");
-        this.getCityEvent = function ( /* e: Event */) {
-            /* e.preventDefault(); */
-            if (_this.searchInput.value === "") {
-                _this.renderErrorMsg("Please enter a city");
-                return;
-            }
+        this.getCityEvent = function () {
             fetch("https://api.opencagedata.com/geocode/v1/json?q=".concat(_this.searchInput.value.trim(), "&key=").concat(_this.API_KEY_LOCATION, "&language=en&pretty=1&no_annotations=1"))
                 .then(function (res) { return res.json(); })
                 .then(function (data) {
@@ -75,11 +70,15 @@ var WeatherAppTS = /** @class */ (function () {
         this.timer = function () {
             if (!_this.searchInput.value)
                 return;
+            _this.loader.classList.remove("none");
             _this.locationsRender.classList.remove("none");
             var timerDebounce = _this.debounce(_this.getCityEvent, 1000);
             timerDebounce();
         };
         this.displayLocationsRes = function (city) {
+            if (_this.searchInput.value === "") {
+                _this.locationsRender.classList.add("none");
+            }
             var citiesArr = city.map(function (res) {
                 return "<p style='margin-top:5px'>".concat(res.formatted, "</p>");
             });
@@ -104,6 +103,15 @@ var WeatherAppTS = /** @class */ (function () {
         };
         this.weatherIntermediary = function (e) {
             e.preventDefault();
+            if (_this.searchInput.value === "") {
+                _this.renderErrorMsg("Please enter a location");
+                return;
+            }
+            if (!_this.locCoords) {
+                _this.locationsRender.classList.add("none");
+                _this.renderErrorMsg("Enter a valid location");
+                return;
+            }
             _this.searchInput.value = "";
             var _a = _this.locCoords, lat = _a.lat, lng = _a.lng;
             _this.getWeatherData(lat, lng);
@@ -178,6 +186,7 @@ var WeatherAppTS = /** @class */ (function () {
                             list: data.list
                         }, cityProp = _a.cityProp, country = _a.country, currentTemp = _a.currentTemp, feelsLike = _a.feelsLike, humidity = _a.humidity, pressure = _a.pressure, visibility = _a.visibility, windSpeed = _a.windSpeed, weather = _a.weather, description = _a.description, list = _a.list;
                         this.renderData(cityProp, country, currentTemp, feelsLike, humidity, pressure, visibility, windSpeed, weather, description, list);
+                        this.locCoords = null;
                         return [3 /*break*/, 4];
                     case 3:
                         err_1 = _b.sent();

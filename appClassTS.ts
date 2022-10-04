@@ -36,14 +36,7 @@ class WeatherAppTS {
     this.searchInput.addEventListener("keyup", this.timer);
   }
 
-  getCityEvent = (/* e: Event */) => {
-    /* e.preventDefault(); */
-
-    if (this.searchInput.value === "") {
-      this.renderErrorMsg("Please enter a city");
-      return;
-    }
-
+  getCityEvent = () => {
     fetch(
       `https://api.opencagedata.com/geocode/v1/json?q=${this.searchInput.value.trim()}&key=${
         this.API_KEY_LOCATION
@@ -68,12 +61,16 @@ class WeatherAppTS {
 
   timer = () => {
     if (!this.searchInput.value) return;
+    this.loader.classList.remove("none");
     this.locationsRender.classList.remove("none");
     const timerDebounce = this.debounce(this.getCityEvent, 1000);
     timerDebounce();
   };
 
   displayLocationsRes = (city: any[]) => {
+    if (this.searchInput.value === "") {
+      this.locationsRender.classList.add("none");
+    }
     const citiesArr = city.map((res: any) => {
       return `<p style='margin-top:5px'>${res.formatted}</p>`;
     });
@@ -102,6 +99,15 @@ class WeatherAppTS {
 
   weatherIntermediary = (e: Event) => {
     e.preventDefault();
+    if (this.searchInput.value === "") {
+      this.renderErrorMsg("Please enter a location");
+      return;
+    }
+    if (!this.locCoords) {
+      this.locationsRender.classList.add("none");
+      this.renderErrorMsg("Enter a valid location");
+      return;
+    }
     this.searchInput.value = "";
     const { lat, lng } = this.locCoords;
     this.getWeatherData(lat, lng);
@@ -255,6 +261,7 @@ class WeatherAppTS {
         description,
         list
       );
+      this.locCoords = null;
     } catch (err: any) {
       console.log(err.message);
     }
