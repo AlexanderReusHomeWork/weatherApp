@@ -91,6 +91,13 @@
     justify-content: center;
     align-items: center;
     flex-direction: column; }
+    .search-form-locations::-webkit-scrollbar {
+      width: 10px; }
+    .search-form-locations::-webkit-scrollbar-track {
+      background-color: #fff; }
+    .search-form-locations::-webkit-scrollbar-thumb {
+      background-color: #3a2cd1;
+      border-radius: 5px; }
     .search-form-locations p {
       cursor: pointer; }
       .search-form-locations p:hover {

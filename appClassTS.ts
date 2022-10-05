@@ -60,7 +60,9 @@ class WeatherAppTS {
   };
 
   timer = () => {
-    if (!this.searchInput.value) return;
+    if (!this.searchInput.value) {
+      this.locationsRender.classList.add("none");
+    }
     this.loader.classList.remove("none");
     this.locationsRender.classList.remove("none");
     const timerDebounce = this.debounce(this.getCityEvent, 1000);

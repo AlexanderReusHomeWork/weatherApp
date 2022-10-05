@@ -68,8 +68,9 @@ var WeatherAppTS = /** @class */ (function () {
             };
         };
         this.timer = function () {
-            if (!_this.searchInput.value)
-                return;
+            if (!_this.searchInput.value) {
+                _this.locationsRender.classList.add("none");
+            }
             _this.loader.classList.remove("none");
             _this.locationsRender.classList.remove("none");
             var timerDebounce = _this.debounce(_this.getCityEvent, 1000);
