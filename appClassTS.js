@@ -81,6 +81,8 @@ var WeatherAppTS = /** @class */ (function () {
             if (_this.searchInput.value === "") {
                 _this.locationsRender.classList.add("none");
             }
+            var firstCity = city[0].geometry;
+            _this.locCoords = firstCity;
             var citiesArr = city.map(function (res) {
                 return "<p style='margin-top:5px'>".concat(res.formatted, "</p>");
             });
@@ -117,6 +119,7 @@ var WeatherAppTS = /** @class */ (function () {
             _this.searchInput.value = "";
             var _a = _this.locCoords, lat = _a.lat, lng = _a.lng;
             _this.getWeatherData(lat, lng);
+            _this.locationsRender.classList.add("none");
         };
         this.getPosition = function () {
             navigator.geolocation.getCurrentPosition(_this.onSuccess, _this.onError);

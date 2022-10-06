@@ -159,6 +159,8 @@ class WeatherAppTS {
     if (this.searchInput.value === "") {
       this.locationsRender.classList.add("none");
     }
+    const firstCity = city[0].geometry;
+    this.locCoords = firstCity;
     const citiesArr = city.map((res: ICity) => {
       return `<p style='margin-top:5px'>${res.formatted}</p>`;
     });
@@ -199,6 +201,7 @@ class WeatherAppTS {
     this.searchInput.value = "";
     const { lat, lng } = this.locCoords;
     this.getWeatherData(lat, lng);
+    this.locationsRender.classList.add("none");
   };
 
   getPosition = () => {
