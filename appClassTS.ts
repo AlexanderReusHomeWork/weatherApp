@@ -145,7 +145,8 @@ class WeatherAppTS {
   };
 
   timer = (e: KeyboardEvent) => {
-    if (e.key === "Backspace") {
+    console.log(e);
+    if (e.type === "keyup") {
       this.locationsContainer.innerHTML = "";
     }
     if (!this.searchInput.value) {

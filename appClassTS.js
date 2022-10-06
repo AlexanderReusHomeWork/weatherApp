@@ -68,7 +68,8 @@ var WeatherAppTS = /** @class */ (function () {
             };
         };
         this.timer = function (e) {
-            if (e.key === "Backspace") {
+            console.log(e);
+            if (e.type === "keyup") {
                 _this.locationsContainer.innerHTML = "";
             }
             if (!_this.searchInput.value) {
