@@ -63,6 +63,7 @@ var WeatherAppTS = /** @class */ (function () {
                 for (var _i = 0; _i < arguments.length; _i++) {
                     args[_i] = arguments[_i];
                 }
+                console.log(args);
                 clearTimeout(timer);
                 timer = setTimeout(function () { return callback.apply(_this, args); }, ms);
             };

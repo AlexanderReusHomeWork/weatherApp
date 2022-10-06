@@ -1,3 +1,88 @@
+interface IOpenCageData {
+  documentation: string;
+  licenses: object[];
+  rate: object;
+  results: ICity[];
+  status: object;
+  stay_informed: string;
+  thanks: string;
+  timestamp: object;
+  total_results: number;
+}
+interface ICity {
+  bounds: {
+    northeast: { lat: number; lng: number };
+    southwest: { lat: number; lng: number };
+  };
+  components: object;
+  confidence: number;
+  formatted: string;
+  geometry: {
+    lat: number;
+    lng: number;
+  };
+}
+
+interface IOpenweathermap {
+  city: {
+    coords: { lat: number; lon: number };
+    country: string;
+    id: number;
+    name: string;
+    population: number;
+    sunrise: number;
+    sunset: number;
+    timezone: number;
+  };
+  cnt: number;
+  cod: string;
+  list: IWeatherList[];
+  message: number;
+}
+
+interface IWeatherList {
+  clouds: { all: number };
+  dt: number;
+  dt_txt: string;
+  main: {
+    feels_like: number;
+    grnd_level: number;
+    humidity: number;
+    pressure: number;
+    sea_level: number;
+    temp: number;
+    temp_kf: number;
+    temp_max: number;
+    temp_min: number;
+  };
+  pop: number;
+  sys: { pod: string };
+  visibility: number;
+  weather: {
+    description: string;
+    icon: string;
+    id: number;
+    main: string;
+  }[];
+  wind: {
+    deg: number;
+    gust: number;
+    speed: number;
+  };
+}
+interface IGeolocationPosition<T> {
+  coords: {
+    accuracy: number;
+    altitude: T;
+    altitudeAccuracy: T;
+    heading: T;
+    latitude: number;
+    longitude: number;
+    speed: T;
+  };
+  timestamp: number;
+}
+
 class WeatherAppTS {
   private API_KEY_WEATHER: string;
   private API_KEY_LOCATION: string;
@@ -43,8 +128,8 @@ class WeatherAppTS {
       }&language=en&pretty=1&no_annotations=1`
     )
       .then((res) => res.json())
-      .then((data) => {
-        const cityResult = data.results;
+      .then((data: IOpenCageData) => {
+        const cityResult: ICity[] = data.results;
         this.displayLocationsRes(cityResult);
       })
       .catch((_) => this.renderErrorMsg("Such city does`nt exist"));
@@ -53,7 +138,8 @@ class WeatherAppTS {
   debounce = (callback: Function, ms: number): Function => {
     let timer: ReturnType<typeof setTimeout>;
 
-    return function (this: any, ...args: any[]) {
+    return function (this: WeatherAppTS, ...args: any) {
+      console.log(args);
       clearTimeout(timer);
       timer = setTimeout(() => callback.apply(this, args), ms);
     };
@@ -69,11 +155,11 @@ class WeatherAppTS {
     timerDebounce();
   };
 
-  displayLocationsRes = (city: any[]) => {
+  displayLocationsRes = (city: ICity[]) => {
     if (this.searchInput.value === "") {
       this.locationsRender.classList.add("none");
     }
-    const citiesArr = city.map((res: any) => {
+    const citiesArr = city.map((res: ICity) => {
       return `<p style='margin-top:5px'>${res.formatted}</p>`;
     });
     if (citiesArr.length > 0) {
@@ -142,9 +228,9 @@ class WeatherAppTS {
     windSpeed: number,
     weather: string,
     description: string,
-    list: object[]
+    list: IWeatherList[]
   ) => {
-    const forecast: object[] = [];
+    const forecast: IWeatherList[] = [];
     for (let i = 0; i < list.length; i++) {
       if (i === 0) continue;
       forecast.push(list[i]);
@@ -168,7 +254,7 @@ class WeatherAppTS {
             <p>Visibility: <span>${visibility / 1000}km</span></p>
             <p>Description: <span>${description}</span></p>
         `;
-    const dailyForecastHTML = forecast.map((elem: any) => {
+    const dailyForecastHTML = forecast.map((elem) => {
       const {
         temp,
         weather,
@@ -212,7 +298,7 @@ class WeatherAppTS {
 
       if (!res.ok) throw new Error("Something went wrong");
 
-      const data = await res.json();
+      const data: IOpenweathermap = await res.json();
       const {
         cityProp,
         country,
@@ -225,18 +311,6 @@ class WeatherAppTS {
         weather,
         description,
         list,
-      }: {
-        cityProp: string;
-        country: string;
-        currentTemp: number;
-        feelsLike: number;
-        humidity: number;
-        pressure: number;
-        visibility: number;
-        windSpeed: number;
-        weather: string;
-        description: string;
-        list: object[];
       } = {
         cityProp: data.city.name,
         country: data.city.country,
@@ -269,9 +343,8 @@ class WeatherAppTS {
     }
   };
 
-  onSuccess = (position: any) => {
-    const { latitude, longitude }: { latitude: number; longitude: number } =
-      position.coords;
+  onSuccess = (position: IGeolocationPosition<null | number>) => {
+    const { latitude, longitude } = position.coords;
     this.getWeatherData(latitude, longitude);
   };
 
