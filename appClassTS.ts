@@ -87,6 +87,7 @@ class WeatherAppTS {
   private API_KEY_WEATHER: string;
   private API_KEY_LOCATION: string;
   private locCoords: any;
+  private timer: any;
 
   private city = document.querySelector(".city") as HTMLBodyElement;
   private todayWeather = document.querySelector(
@@ -118,7 +119,7 @@ class WeatherAppTS {
     this.API_KEY_LOCATION = apiKeyLocation;
 
     this.form.addEventListener("submit", this.weatherIntermediary);
-    this.searchInput.addEventListener("keyup", this.timer);
+    this.searchInput.addEventListener("keyup", this.debounceStart);
   }
 
   getCityEvent = () => {
@@ -136,16 +137,17 @@ class WeatherAppTS {
   };
 
   debounce = (callback: Function, ms: number): Function => {
-    let timer: ReturnType<typeof setTimeout>;
-
-    return function (this: WeatherAppTS, ...args: any) {
-      clearTimeout(timer);
-      timer = setTimeout(() => callback.apply(this, args), ms);
+    //let timer: number
+    //let каждый раз создается новый при исполнении функции, поэтому и clearTimeout не работао, так как ему клирить было нечего, решение - это перенести переменную в поля класса, чтоб setTimeout не исчезал, как до этого было
+    return function (this: any) {
+      clearTimeout(this.timer);
+      this.timer = setTimeout(() => {
+        callback();
+      }, ms);
     };
   };
 
-  timer = (e: KeyboardEvent) => {
-    console.log(e);
+  debounceStart = (e: KeyboardEvent) => {
     if (e.type === "keyup") {
       this.locationsContainer.innerHTML = "";
     }
@@ -154,7 +156,7 @@ class WeatherAppTS {
     }
     this.loader.classList.remove("none");
     this.locationsRender.classList.remove("none");
-    const timerDebounce = this.debounce(this.getCityEvent, 1000);
+    const timerDebounce = this.debounce(this.getCityEvent, 600);
     timerDebounce();
   };
 

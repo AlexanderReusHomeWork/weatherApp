@@ -56,19 +56,16 @@ var WeatherAppTS = /** @class */ (function () {
             })["catch"](function (_) { return _this.renderErrorMsg("Such city does`nt exist"); });
         };
         this.debounce = function (callback, ms) {
-            var timer;
+            //let timer: number
+            //let каждый раз создается новый при исполнении функции, поэтому и clearTimeout не работао, так как ему клирить было нечего, решение - это перенести переменную в поля класса, чтоб setTimeout не исчезал, как до этого было
             return function () {
-                var _this = this;
-                var args = [];
-                for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i] = arguments[_i];
-                }
-                clearTimeout(timer);
-                timer = setTimeout(function () { return callback.apply(_this, args); }, ms);
+                clearTimeout(this.timer);
+                this.timer = setTimeout(function () {
+                    callback();
+                }, ms);
             };
         };
-        this.timer = function (e) {
-            console.log(e);
+        this.debounceStart = function (e) {
             if (e.type === "keyup") {
                 _this.locationsContainer.innerHTML = "";
             }
@@ -77,7 +74,7 @@ var WeatherAppTS = /** @class */ (function () {
             }
             _this.loader.classList.remove("none");
             _this.locationsRender.classList.remove("none");
-            var timerDebounce = _this.debounce(_this.getCityEvent, 1000);
+            var timerDebounce = _this.debounce(_this.getCityEvent, 600);
             timerDebounce();
         };
         this.displayLocationsRes = function (city) {
@@ -217,7 +214,7 @@ var WeatherAppTS = /** @class */ (function () {
         this.API_KEY_WEATHER = apiKeyWeather;
         this.API_KEY_LOCATION = apiKeyLocation;
         this.form.addEventListener("submit", this.weatherIntermediary);
-        this.searchInput.addEventListener("keyup", this.timer);
+        this.searchInput.addEventListener("keyup", this.debounceStart);
     }
     return WeatherAppTS;
 }());
