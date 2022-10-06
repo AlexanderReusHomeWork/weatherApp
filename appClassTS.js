@@ -80,6 +80,7 @@ var WeatherAppTS = /** @class */ (function () {
         this.displayLocationsRes = function (city) {
             if (_this.searchInput.value === "") {
                 _this.locationsRender.classList.add("none");
+                _this.locationsContainer.innerHTML = "";
             }
             var firstCity = city[0].geometry;
             _this.locCoords = firstCity;

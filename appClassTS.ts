@@ -158,6 +158,7 @@ class WeatherAppTS {
   displayLocationsRes = (city: ICity[]) => {
     if (this.searchInput.value === "") {
       this.locationsRender.classList.add("none");
+      this.locationsContainer.innerHTML = "";
     }
     const firstCity = city[0].geometry;
     this.locCoords = firstCity;
