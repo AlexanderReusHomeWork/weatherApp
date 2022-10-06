@@ -139,13 +139,15 @@ class WeatherAppTS {
     let timer: ReturnType<typeof setTimeout>;
 
     return function (this: WeatherAppTS, ...args: any) {
-      console.log(args);
       clearTimeout(timer);
       timer = setTimeout(() => callback.apply(this, args), ms);
     };
   };
 
-  timer = () => {
+  timer = (e: KeyboardEvent) => {
+    if (e.key === "Backspace") {
+      this.locationsContainer.innerHTML = "";
+    }
     if (!this.searchInput.value) {
       this.locationsRender.classList.add("none");
     }
