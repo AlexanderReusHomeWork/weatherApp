@@ -84,8 +84,8 @@ interface IGeolocationPosition<T> {
 }
 
 class WeatherAppTS {
-  private API_KEY_WEATHER: string;
-  private API_KEY_LOCATION: string;
+  private readonly API_KEY_WEATHER: string;
+  private readonly API_KEY_LOCATION: string;
   private locCoords: any;
   private timer: any;
 
@@ -139,7 +139,7 @@ class WeatherAppTS {
   debounce = (callback: Function, ms: number): Function => {
     //let timer: number
     //let каждый раз создается новый при исполнении функции, поэтому и clearTimeout не работао, так как ему клирить было нечего, решение - это перенести переменную в поля класса, чтоб setTimeout не исчезал, как до этого было
-    return function (this: any) {
+    return function (this: WeatherAppTS) {
       clearTimeout(this.timer);
       this.timer = setTimeout(() => {
         callback();
