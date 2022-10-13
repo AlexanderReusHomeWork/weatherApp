@@ -17,12 +17,22 @@
   </head>
   <body>
     <section class="city"></section>
+
     <form class="search-form">
       <div class="search-form-container">
-        <input type="text" id="city-search" placeholder="Enter city..." />
+        <input type="text" id="city-search" placeholder="Enter location..." />
         <button type="submit">
           <i class="fa-solid fa-magnifying-glass"></i>
         </button>
+      </div>
+      <div class="search-form-locations none">
+        <div class="search-form-locations-container"></div>
+        <div class="lds-ellipsis none">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
       </div>
       <div class="search-form-error none">
         <p></p>

@@ -1,6 +1,93 @@
+interface IOpenCageData {
+  documentation: string;
+  licenses: object[];
+  rate: object;
+  results: ICity[];
+  status: object;
+  stay_informed: string;
+  thanks: string;
+  timestamp: object;
+  total_results: number;
+}
+interface ICity {
+  bounds: {
+    northeast: { lat: number; lng: number };
+    southwest: { lat: number; lng: number };
+  };
+  components: object;
+  confidence: number;
+  formatted: string;
+  geometry: {
+    lat: number;
+    lng: number;
+  };
+}
+
+interface IOpenweathermap {
+  city: {
+    coords: { lat: number; lon: number };
+    country: string;
+    id: number;
+    name: string;
+    population: number;
+    sunrise: number;
+    sunset: number;
+    timezone: number;
+  };
+  cnt: number;
+  cod: string;
+  list: IWeatherList[];
+  message: number;
+}
+
+interface IWeatherList {
+  clouds: { all: number };
+  dt: number;
+  dt_txt: string;
+  main: {
+    feels_like: number;
+    grnd_level: number;
+    humidity: number;
+    pressure: number;
+    sea_level: number;
+    temp: number;
+    temp_kf: number;
+    temp_max: number;
+    temp_min: number;
+  };
+  pop: number;
+  sys: { pod: string };
+  visibility: number;
+  weather: {
+    description: string;
+    icon: string;
+    id: number;
+    main: string;
+  }[];
+  wind: {
+    deg: number;
+    gust: number;
+    speed: number;
+  };
+}
+interface IGeolocationPosition<T> {
+  coords: {
+    accuracy: number;
+    altitude: T;
+    altitudeAccuracy: T;
+    heading: T;
+    latitude: number;
+    longitude: number;
+    speed: T;
+  };
+  timestamp: number;
+}
+
 class WeatherAppTS {
-  private API_KEY_WEATHER: string;
-  private API_KEY_LOCATION: string;
+  private readonly API_KEY_WEATHER: string;
+  private readonly API_KEY_LOCATION: string;
+  private locCoords: any;
+  private timer: any;
 
   private city = document.querySelector(".city") as HTMLBodyElement;
   private todayWeather = document.querySelector(
@@ -19,33 +106,108 @@ class WeatherAppTS {
     "city-search"
   ) as HTMLInputElement;
   private form = document.querySelector(".search-form") as HTMLFormElement;
+  private locationsRender = document.querySelector(
+    ".search-form-locations"
+  ) as HTMLElement;
+  private locationsContainer = document.querySelector(
+    ".search-form-locations-container"
+  ) as HTMLBodyElement;
+  private loader = document.querySelector(".lds-ellipsis") as HTMLBodyElement;
 
   constructor(apiKeyWeather: string, apiKeyLocation: string) {
     this.API_KEY_WEATHER = apiKeyWeather;
     this.API_KEY_LOCATION = apiKeyLocation;
 
-    this.form.addEventListener("submit", this.getCityEvent);
+    this.form.addEventListener("submit", this.weatherIntermediary);
+    this.searchInput.addEventListener("keyup", this.debounceStart);
   }
 
-  getCityEvent = (e: any) => {
-    e.preventDefault();
-
-    if (this.searchInput.value === "") {
-      this.renderErrorMsg("Please enter a city");
-      return;
-    }
-
+  getCityEvent = () => {
     fetch(
       `https://api.opencagedata.com/geocode/v1/json?q=${this.searchInput.value.trim()}&key=${
         this.API_KEY_LOCATION
       }&language=en&pretty=1&no_annotations=1`
     )
       .then((res) => res.json())
-      .then((data) => {
-        const { lat, lng } = data.results[0].geometry;
-        this.getWeatherData(lat, lng);
+      .then((data: IOpenCageData) => {
+        const cityResult: ICity[] = data.results;
+        this.displayLocationsRes(cityResult);
       })
-      .catch((_) => this.renderErrorMsg("Such city doesn`t exist"));
+      .catch((_) => this.renderErrorMsg("Such city does`nt exist"));
+  };
+
+  debounce = (callback: Function, ms: number): Function => {
+    //let timer: number
+    //let каждый раз создается новый при исполнении функции, поэтому и clearTimeout не работао, так как ему клирить было нечего, решение - это перенести переменную в поля класса, чтоб setTimeout не исчезал, как до этого было
+    return function (this: WeatherAppTS) {
+      clearTimeout(this.timer);
+      this.timer = setTimeout(() => {
+        callback();
+      }, ms);
+    };
+  };
+
+  debounceStart = (e: KeyboardEvent) => {
+    if (e.type === "keyup") {
+      this.locationsContainer.innerHTML = "";
+    }
+    if (!this.searchInput.value) {
+      this.locationsRender.classList.add("none");
+    }
+    this.loader.classList.remove("none");
+    this.locationsRender.classList.remove("none");
+    const timerDebounce = this.debounce(this.getCityEvent, 600);
+    timerDebounce();
+  };
+
+  displayLocationsRes = (city: ICity[]) => {
+    if (this.searchInput.value === "") {
+      this.locationsRender.classList.add("none");
+      this.locationsContainer.innerHTML = "";
+    }
+    const firstCity = city[0].geometry;
+    this.locCoords = firstCity;
+    const citiesArr = city.map((res: ICity) => {
+      return `<p style='margin-top:5px'>${res.formatted}</p>`;
+    });
+    if (citiesArr.length > 0) {
+      this.loader.classList.add("none");
+      this.locationsContainer.insertAdjacentHTML(
+        "afterbegin",
+        citiesArr.join("")
+      );
+      this.locationsContainer.addEventListener("click", (e: any) => {
+        const chosenLocation = e.target.closest("p").textContent;
+        const filteredCity = city.filter(
+          (elem) => elem.formatted === chosenLocation
+        );
+        const locationCoords = filteredCity[0].geometry;
+        this.locCoords = locationCoords;
+        if (!chosenLocation) return;
+        this.searchInput.value = chosenLocation;
+        this.locationsContainer.innerHTML = "";
+        this.locationsRender.classList.add("none");
+      });
+    } else {
+      this.loader.classList.remove("none");
+    }
+  };
+
+  weatherIntermediary = (e: Event) => {
+    e.preventDefault();
+    if (this.searchInput.value === "") {
+      this.renderErrorMsg("Please enter a location");
+      return;
+    }
+    if (!this.locCoords) {
+      this.locationsRender.classList.add("none");
+      this.renderErrorMsg("Enter a valid location");
+      return;
+    }
+    this.searchInput.value = "";
+    const { lat, lng } = this.locCoords;
+    this.getWeatherData(lat, lng);
+    this.locationsRender.classList.add("none");
   };
 
   getPosition = () => {
@@ -75,9 +237,9 @@ class WeatherAppTS {
     windSpeed: number,
     weather: string,
     description: string,
-    list: object[]
+    list: IWeatherList[]
   ) => {
-    const forecast: object[] = [];
+    const forecast: IWeatherList[] = [];
     for (let i = 0; i < list.length; i++) {
       if (i === 0) continue;
       forecast.push(list[i]);
@@ -101,7 +263,7 @@ class WeatherAppTS {
             <p>Visibility: <span>${visibility / 1000}km</span></p>
             <p>Description: <span>${description}</span></p>
         `;
-    const dailyForecastHTML = forecast.map((elem: any) => {
+    const dailyForecastHTML = forecast.map((elem) => {
       const {
         temp,
         weather,
@@ -145,7 +307,7 @@ class WeatherAppTS {
 
       if (!res.ok) throw new Error("Something went wrong");
 
-      const data = await res.json();
+      const data: IOpenweathermap = await res.json();
       const {
         cityProp,
         country,
@@ -158,18 +320,6 @@ class WeatherAppTS {
         weather,
         description,
         list,
-      }: {
-        cityProp: string;
-        country: string;
-        currentTemp: number;
-        feelsLike: number;
-        humidity: number;
-        pressure: number;
-        visibility: number;
-        windSpeed: number;
-        weather: string;
-        description: string;
-        list: object[];
       } = {
         cityProp: data.city.name,
         country: data.city.country,
@@ -196,14 +346,14 @@ class WeatherAppTS {
         description,
         list
       );
+      this.locCoords = null;
     } catch (err: any) {
       console.log(err.message);
     }
   };
 
-  onSuccess = (position: any) => {
-    const { latitude, longitude }: { latitude: number; longitude: number } =
-      position.coords;
+  onSuccess = (position: IGeolocationPosition<null | number>) => {
+    const { latitude, longitude } = position.coords;
     this.getWeatherData(latitude, longitude);
   };
 
